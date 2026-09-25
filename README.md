@@ -43,7 +43,23 @@ __PROBE MICROCONTROLLER CONNECTIONS:__.
 Fig 9.  
 
 __ECG MICROCONTROLLER CONNECTIONS:__. 
-<img width="3043" height="1310" alt="Figure14" src="https://github.com/user-attachments/assets/a0f1340b-8c67-4c54-9c5e-f06f30f26fdf" />. 
+<img width="3043" height="1310" alt="Figure14" src="https://github.com/user-attachments/assets/a0f1340b-8c67-4c54-9c5e-f06f30f26fdf" />.  
+
+Fig 10.  
+
+__PCB FOR THE OPTODE PROBES:__.  
+<img width="650" height="202" alt="Figure11" src="https://github.com/user-attachments/assets/56f48539-17a8-45dc-b91e-786f2582be57" />.  
+
+Fig 11.  
+
+__WEB APP FOR REAL TIME FEEDBACK:__. 
+<img width="892" height="556" alt="Figure15" src="https://github.com/user-attachments/assets/024285d2-2803-46f5-a938-41461f31dd37" />. 
+
+
+
+
+
+
 
 
 
