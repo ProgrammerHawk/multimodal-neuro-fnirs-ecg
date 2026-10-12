@@ -430,30 +430,28 @@ float readAvg(int pin, int samples = FNIRS_AVG) {
     }
     return (float)sum / samples;
 }
-/*
- * Delta rSO2 Calculator using NIRS (Near-Infrared Spectroscopy)
- * Wavelengths : 740 nm and 850 nm
- * Short channel: 1.0 cm (removes superficial / skin layer signal)
- * Long  channel: 3.3 cm (measures deep tissue signal)
- *
- * Method: Modified Beer-Lambert Law + short-channel regression subtraction
- */
+
+ // Delta rSO2 Calculator using NIRS (Near-Infrared Spectroscopy)
+ // Wavelengths : 740 nm and 850 nm
+ // Short channel: 1.0 cm (removes superficial / skin layer signal)
+ // Long  channel: 3.3 cm (measures deep tissue signal)
+ //
+ // Method: Modified Beer-Lambert Law + short-channel regression subtraction
+ //
 
 const float SHORT_SDS = 1.0;   // Source-detector separation, short channel (cm)
 const float LONG_SDS  = 3.3;   // Source-detector separation, long  channel (cm)
 
-/*
- * Differential Pathlength Factor (DPF)
- * Typical values: 6.26 @ 740 nm, 5.97 @ 850 nm (adult head, literature values)
- * Adjust these for your tissue type and age group.
- */
+// Differential Pathlength Factor (DPF)
+// Typical values: 6.26 @ 740 nm, 5.97 @ 850 nm (adult head, literature values)
+// Adjust these for your tissue type and age group.
+
 const float DPF_740 = 6.26;
 const float DPF_850 = 5.97;
 
-/*
- * Molar extinction coefficients [cm^-1 / mM]
- * Source: Matcher et al. / Prahl tabulated values at 740 & 850 nm
- */
+// Molar extinction coefficients [cm^-1 / mM]
+// Source: Matcher et al. / Prahl tabulated values at 740 & 850 nm
+
 const float E_HbO2_740 = 0.446;   // Oxyhaemoglobin   @ 740 nm
 const float E_Hb_740   = 1.116;   // Deoxyhaemoglobin @ 740 nm
 const float E_HbO2_850 = 1.058;   // Oxyhaemoglobin   @ 850 nm
@@ -604,16 +602,12 @@ void calculateHb () {
  * pass-band. Measured response at fs = 50 Hz: -3.0 dB at both corners,
  * -28 dB at 1 Hz (cardiac) and -40 dB at 2 Hz.
  *
- * Phase is non-linear, so evoked-response onset latency is smeared. If you
- * need exact latency, log the raw signal and filter it forwards and backwards
- * offline.
+ * Phase is non-linear
  *
  * Coefficients are built at run time with the bilinear transform, Q = 1/sqrt(2).
  * Coefficients and state must stay in double: at fc/fs = 2e-4 the high-pass
  * poles sit at radius 0.9991, which float32 cannot resolve without drifting.
  *
- * Written as a class so the Arduino auto-prototype generator cannot hoist a
- * prototype above the type definition.
  */
 
 #define FNIRS_BP_LOW   0.01f   // high-pass corner [Hz]
@@ -783,9 +777,9 @@ void loop() {
         nextFrame = micros() + FNIRS_PERIOD_US;   //frame overran: resync instead of burst-catching up
     }
 
-    //Shared clock for this pass: the R-R check below and the fNIRS frame
-    //acquired further down are tagged with the same index, so the logged R-R
-    //time lines up exactly with the optical sample it coincided with.
+    // Shared clock for this pass: the R-R check below and the fNIRS frame
+    // acquired further down are tagged with the same index, so the logged R-R
+    // time lines up exactly with the optical sample it coincided with.
     uint32_t curFrame = fnirsFrameIdx++;
 
     max30003.updateHeartRate(); //update MAX30003 sensor calculations
@@ -803,16 +797,16 @@ void loop() {
         }
     }
 
-    //Drain whatever the ECG FIFO has accumulated since the last frame
-    //(ECG_FS against a 50 Hz frame rate is ~ECG_FS/50 samples).
+    // Drain whatever the ECG FIFO has accumulated since the last frame
+    // (ECG_FS against a 50 Hz frame rate is ~ECG_FS/50 samples).
     int32_t ecgSample;
     for (uint8_t i = 0; i < ECG_DRAIN; i++) {
         if (!max30003.readEcgSample(ecgSample)) break;
         if (ecgCount < ECG_BATCH) ecgBuf[ecgCount++] = ecgSample;
     }
 
-    //Optical sampling is independent of the ECG: the band-pass expects one
-    //fNIRS frame every FNIRS_PERIOD_US, not one per detected heartbeat.
+    // Optical sampling is independent of the ECG: the band-pass expects one
+    // fNIRS frame every FNIRS_PERIOD_US, not one per detected heartbeat.
     readFNIRS();
     calculateHb();
     dHbO2_filt = bpHbO2.apply(dHbO2_raw);
@@ -836,8 +830,8 @@ void loop() {
         currentRR = 0;
     }
 
-    //Convert values to strings in order to send to the client(website) to be displayed.
-    //Each message is a 3-character tag plus the payload; the client strips exactly 3.
+    // Convert values to strings in order to send to the client(website) to be displayed.
+    // Each message is a 3-character tag plus the payload; the client strips exactly 3.
     if (millis() - lastPush >= PUSH_PERIOD_MS) {
         lastPush = millis();
         rmssd_string = "hrv" + String(rmssd);
@@ -846,8 +840,8 @@ void loop() {
         socket.broadcastTXT(meanHRV_string);
         socket.broadcastTXT(bpHbO2.ready() ? "rdy1" : "rdy0");   // high-pass converged?
 
-        //Waveform batches. reserve() first: growing a String inside the loop
-        //fragments the heap badly at this rate.
+        // Waveform batches. reserve() first: growing a String inside the loop
+        // fragments the heap badly at this rate.
         if (nirCount) {
             String m = "nir";
             m.reserve(16 * NIR_BATCH);
